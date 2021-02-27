@@ -1,0 +1,15 @@
+version: '3.7'
+
+services:
+  backend:
+    build: ./backend
+    container_name: "backend-app-dev"
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend/:/usr/src/app/
+    ports:
+      - 8000:8000
+    env_file:
+      - ./.env.dev
+    stdin_open: true
+    tty: true
