@@ -18,6 +18,22 @@ services:
     depends_on:
       - db-prod
 
+  frontend-prod:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    container_name: "frontend"
+    volumes:
+      - static_volume:/home/app/web/api/static
+    networks:
+      - prod
+    ports:
+      - 80:80
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - "backend-prod"
+
   db-prod:
     image: postgres:13.2-alpine
     container_name: "db-prod"
