@@ -9,7 +9,29 @@ services:
       - ./backend/:/usr/src/app/
     ports:
       - 8000:8000
+    networks:
+      - dev
+    depends_on:
+      - db
     env_file:
       - ./.env.dev
     stdin_open: true
     tty: true
+
+  db:
+    image: postgres:13.2-alpine
+    container_name: "db-dev"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - dev
+    environment:
+      - POSTGRES_USER=django
+      - POSTGRES_PASSWORD=django
+      - POSTGRES_DB=django_dev
+
+volumes:
+  postgres_data:
+
+networks:
+  dev:
