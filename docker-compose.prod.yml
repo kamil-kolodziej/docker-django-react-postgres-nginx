@@ -7,6 +7,8 @@ services:
       dockerfile: Dockerfile.prod
     container_name: "backend-app-prod"
     command: gunicorn app.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - static_volume:/home/app/web/api/static
     networks:
       - prod
     expose:
@@ -28,6 +30,7 @@ services:
 
 volumes:
   postgres_data_prod:
+  static_volume:
 
 networks:
   prod:
