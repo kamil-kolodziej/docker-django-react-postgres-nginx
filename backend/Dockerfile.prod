@@ -1,0 +1,47 @@
+###########
+# BUILDER #
+###########
+FROM python:3.8.8-slim as builder
+
+WORKDIR /usr/src/app
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+RUN apt-get update && apt-get install -y python3-dev gcc musl-dev libffi-dev
+
+RUN pip install --upgrade pip
+COPY . .
+
+# install dependencies
+COPY ./requirements ./requirements
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements/production.txt
+
+#########
+# FINAL #
+#########
+FROM python:3.8.8-slim
+
+RUN useradd -ms /bin/bash app
+
+ENV HOME=/home/app
+ENV APP_HOME=/home/app/web
+RUN mkdir $APP_HOME
+RUN mkdir $APP_HOME/api
+RUN mkdir $APP_HOME/api/static
+WORKDIR $APP_HOME
+
+RUN apt-get update && apt-get install -y python3-dev gcc musl-dev libffi-dev netcat
+COPY --from=builder /usr/src/app/wheels /wheels
+COPY --from=builder /usr/src/app/requirements/production.txt .
+RUN pip install --no-cache /wheels/*
+
+COPY ./entrypoint.prod.sh $APP_HOME
+
+COPY . $APP_HOME
+
+RUN chown -R app:app $APP_HOME
+
+USER app
+
+ENTRYPOINT ["/home/app/web/entrypoint.prod.sh"]

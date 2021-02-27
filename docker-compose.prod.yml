@@ -1,0 +1,33 @@
+version: '3.7'
+
+services:
+  backend-prod:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    container_name: "backend-app-prod"
+    command: gunicorn app.wsgi:application --bind 0.0.0.0:8000
+    networks:
+      - prod
+    expose:
+      - 8000
+    env_file:
+      - ./.env.prod
+    depends_on:
+      - db-prod
+
+  db-prod:
+    image: postgres:13.2-alpine
+    container_name: "db-prod"
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    networks:
+      - prod
+    env_file:
+      - ./.env.prod.db
+
+volumes:
+  postgres_data_prod:
+
+networks:
+  prod:
