@@ -18,6 +18,24 @@ services:
     stdin_open: true
     tty: true
 
+  frontend:
+    build: ./frontend
+    container_name: "frontend-dev"
+    volumes:
+      - ./frontend:/app
+      - node-modules:/app/node_modules
+    networks:
+      - dev
+    ports:
+      - '3000:3000'
+    stdin_open: true
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - "backend"
+    command:
+      npm start
+
   db:
     image: postgres:13.2-alpine
     container_name: "db-dev"
@@ -32,6 +50,7 @@ services:
 
 volumes:
   postgres_data:
+  node-modules:
 
 networks:
   dev:
